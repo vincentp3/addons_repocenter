@@ -26,9 +26,14 @@ function processDependencies(deps) {
     }
     var short_name = name;
     if (name.includes("/")){
-    const parts = name.split("/");
-    const short_name_parts = parts.slice(1);
+    var parts = name.split("/");
+    var short_name_parts = parts.slice(1);
     short_name = short_name_parts.join("/");
+    if (short_name.includes("node_modules/")){
+      parts = short_name.split("node_modules/");
+      short_name = parts[parts.length - 1];
+      console.log("short_name = ", short_name);
+    }
     }
     
     downloadPackage(short_name, info.version);
