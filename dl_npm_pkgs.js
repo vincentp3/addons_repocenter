@@ -13,6 +13,18 @@ function getLatestVersion(name) {
   }
 }
 
+function getLatestVersionWithinMajor(name, major, fallbackVersion) {
+  try {
+    const output = execSync(`npm view ${name} versions --json`, { encoding: 'utf8' });
+    const versions = JSON.parse(output);
+    const filteredVersions = versions.filter(version => version.startsWith(`${major}.`));
+    return filteredVersions.pop();
+  } catch (error) {
+    console.error(`Erreur lors de la récupération de la dernière version de ${name} avec la version majeure ${major}:`, error.message);
+    return fallbackVersion;
+  }
+}
+
 function downloadPackage(name, version) {
   const packageName = `${name}@${version}`;
   console.log(`Downloading ${packageName}`);
@@ -24,7 +36,12 @@ function processDep(deps) {
     let value = deps[key];
     let version = value;
     if (version.includes('^')) {
-      version = getLatestVersion(key);
+      const majorVersion = version.slice(1, version.indexOf('.'));
+      version = getLatestVersionWithinMajor(key, majorVersion, version.slice(1));
+    }
+    if (version.includes('>=')) {
+      //const majorVersion = (version.slice(1, version.indexOf('>='))).slice;
+      version = '"'+version+'"';
     }
     downloadPackage(key, version);
   }
