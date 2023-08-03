@@ -35,9 +35,18 @@ function processDep(deps) {
   for (const key in deps) {
     let value = deps[key];
     let version = value;
+    console.log("[DEBUG] version", version);
+    console.log("[DEBUG] deps", deps);
     if (version.includes('^')) {
-      const majorVersion = version.slice(1, version.indexOf('.'));
+      let majorVersion ;
+      if (version.includes('.')){
+        majorVersion = version.slice(1, version.indexOf('.'));
+      }
+      else {
+        majorVersion=version.slice(1);
+      }
       version = getLatestVersionWithinMajor(key, majorVersion, version.slice(1));
+    
     }
     if (version.includes('>=')) {
       //const majorVersion = (version.slice(1, version.indexOf('>='))).slice;
