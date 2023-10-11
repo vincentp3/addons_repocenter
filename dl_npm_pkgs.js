@@ -32,11 +32,12 @@ function downloadPackage(name, version) {
 }
 
 function processDep(deps) {
+  console.log("[DEBUG] deps", deps);
   for (const key in deps) {
     let value = deps[key];
     let version = value;
     console.log("[DEBUG] version", version);
-    console.log("[DEBUG] deps", deps);
+    
     if (version.includes('^')) {
       let majorVersion ;
       if (version.includes('.')){
@@ -46,11 +47,16 @@ function processDep(deps) {
         majorVersion=version.slice(1);
       }
       version = getLatestVersionWithinMajor(key, majorVersion, version.slice(1));
-    
+      console.log("[DEBUG] result of get latest version", version);
     }
+    console.log("[DEBUG] CUSTOM", "["+key+" "+version+"]");
+    try{
     if (version.includes('>=')) {
       //const majorVersion = (version.slice(1, version.indexOf('>='))).slice;
       version = '"'+version+'"';
+    }} catch(error){
+      console.log("[DEBUG] ERROR", "["+key+" "+version+"]");
+      console.log("[DEBUG] ERROR deps", deps);
     }
     downloadPackage(key, version);
   }
@@ -76,6 +82,18 @@ function processDependencies(deps) {
 
     downloadPackage(short_name, info.version);
     if (info.dependencies) {
+      console.log("[DEBUG] info dependencies", info.dependencies);
+      // clean deps
+      var deps = info.dependencies;
+      for (const key in deps){
+        let value = deps[key];
+        if (value.includes("@")){
+          // alors il faut clean
+          parts = value.split("@");
+          info.dependencies[parts[0]]=parts[1];
+          delete info.dependencies[key];
+        }
+      } 
       processDep(info.dependencies);
     }
   }
