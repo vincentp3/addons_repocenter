@@ -68,7 +68,12 @@ function processDependencies(deps) {
     if (name === '') {
       continue; // Ignore root project
     }
-    let short_name = name;
+    var short_name="";
+    if ("name" in info){
+      short_name = info["name"];
+    } else {
+    short_name = name;
+    
     if (name.includes('/')) {
       var parts = name.split('/');
       var short_name_parts = parts.slice(1);
@@ -76,9 +81,11 @@ function processDependencies(deps) {
       if (short_name.includes('node_modules/')) {
         parts = short_name.split('node_modules/');
         short_name = parts[parts.length - 1];
-        console.log('short_name = ', short_name);
+        
       }
     }
+    }
+    console.log('short_name = ', short_name);
 
     downloadPackage(short_name, info.version);
     if (info.dependencies) {
